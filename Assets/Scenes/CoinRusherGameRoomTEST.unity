@@ -1035,7 +1035,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ee363e634a8701a4e989246ca4dab4af, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  timer: 30
   coinLabel: {fileID: 453014501}
   timerLabel: {fileID: 498686075}
   resultLabel: {fileID: 1547111698}
@@ -1361,7 +1360,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1286134559}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -9, y: 3, z: -9}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -1384,7 +1383,10 @@ MonoBehaviour:
   speed: 8
   coinAmount: 0
   grounded: 0
-  coinText: {fileID: 0}
+  beginLevel: 0
+  BeginCountDownEvent:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!114 &1286134565
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.InputSystem;
 
 
@@ -12,6 +13,7 @@ namespace Final
         private InputAction move;
         private InputAction look;
         private InputAction jump;
+        private InputAction fire;
 
         // Mapping for input variable
         PlayerControlMapping mapping;
@@ -30,10 +32,37 @@ namespace Final
 
         // Boolean to handle jumping and first time movement
         public bool grounded = false;
-        public bool firstMovement = false;
+        public bool beginLevel = false;
 
         // Variable to handle the component of the player's rigid body
         private Rigidbody rb;
+
+        // Variable to be use for event
+        public static Player instance;
+
+        public UnityEvent freezePlayerEvent;
+        public UnityEvent BeginCountDownEvent;
+
+        // Initializing player object for movement
+        private void Awake()
+        {
+            // Related to unityevent syntax
+            instance = this;
+
+            // For player control
+            mapping = new PlayerControlMapping();
+
+            // initializing the rigidbody and cursor mode
+            rb = GetComponent<Rigidbody>();
+            Cursor.visible = false;
+            Cursor.lockState = CursorLockMode.Locked;
+
+            // Setting up the player control
+            move = mapping.Player.Move;
+            look = mapping.Player.Look;
+            jump = mapping.Player.Jump;
+            fire = mapping.Player.Fire;
+        }
 
 
         private void OnEnable()
@@ -41,9 +70,11 @@ namespace Final
             move.Enable();
             look.Enable();
             jump.Enable();
+            fire.Enable();
 
 
             jump.performed += Jump;
+            fire.performed += Fire;
         }
 
         private void OnDisable()
@@ -51,28 +82,42 @@ namespace Final
             move.Disable(); 
             look.Disable();
             jump.Disable();
+            fire.Disable();
 
             jump.performed -= Jump;
+            fire.performed -= Fire;
         }
 
-
-        // Initializing player object for movement
-        private void Awake()
-        {
-            mapping = new PlayerControlMapping();
-
-            rb = GetComponent<Rigidbody>();
-            Cursor.visible = false;
-            Cursor.lockState = CursorLockMode.Locked;
-
-            move = mapping.Player.Move;
-            look = mapping.Player.Look;
-            jump = mapping.Player.Jump;
-        }
 
         private void Start()
         {
+            freezePlayerEvent.Invoke();
+            FreezePlayer();
+        }
 
+        public static UnityEvent GetFreezePlayerEvent()
+        {
+            return instance.freezePlayerEvent;
+        }
+
+        public static UnityEvent GetBeginCountDownEvent()
+        {
+            return instance.BeginCountDownEvent;
+        }
+
+
+        private void FixedUpdate()
+        {
+            HandleMovement();
+        }
+
+        // Update is called once per frame
+        void Update()
+        {
+            grounded = IsGrounded();
+
+            HandleHorizontalRotation();
+            HandleVerticalRotation();
         }
 
 
@@ -89,6 +134,40 @@ namespace Final
             {
                 rb.AddForce(Vector3.up * jumpForce);
             }
+        }
+
+
+        // The input that will start the level once the player loads in
+        void Fire(InputAction.CallbackContext context)
+        {
+            // When the player left clicks, the level begins!
+            if (beginLevel == false)
+            {
+                // Unfreeze the player to give them back control
+                UnfreezePlayer();
+
+                // Start the countdown event
+                BeginCountDownEvent.Invoke();
+
+                // Set the level status to be true
+                beginLevel = true;
+            }
+        }
+
+
+        public void FreezePlayer()
+        {
+            move.Disable();
+            look.Disable();
+
+            freezePlayerEvent.Invoke();
+        }
+
+
+        public void UnfreezePlayer()
+        {
+            move.Enable();
+            look.Enable();
         }
 
 
@@ -161,18 +240,7 @@ namespace Final
             }
         }
 
-        private void FixedUpdate()
-        {
-            HandleMovement();
-        }
 
-        // Update is called once per frame
-        void Update()
-        {
-            grounded = IsGrounded();
-
-            HandleHorizontalRotation();
-            HandleVerticalRotation();
-        }
+        
     }
 }
