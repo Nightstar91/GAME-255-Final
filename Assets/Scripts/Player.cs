@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -18,6 +19,9 @@ namespace Final
         // Mapping for input variable
         PlayerControlMapping mapping;
 
+        // Getting GameManager class for the timer
+        public GameManager manager;
+
         // Variable to handle the player's camera movement
         private float mouseDeltaX = 0f;
         private float mouseDeltaY = 0f;
@@ -25,6 +29,8 @@ namespace Final
         private int rotDir = 0;
 
         // Attributes for player's stats
+        public double totalScore;
+        private float score = 0f;
         public float speed = 8f;
         public int coinAmount;
         private float jumpForce = 250f;
@@ -49,6 +55,9 @@ namespace Final
             // Related to unityevent syntax
             instance = this;
 
+            // Default value for beginLevel
+            beginLevel = false;
+
             // For player control
             mapping = new PlayerControlMapping();
 
@@ -62,6 +71,9 @@ namespace Final
             look = mapping.Player.Look;
             jump = mapping.Player.Jump;
             fire = mapping.Player.Fire;
+
+            // Finding the gameManager in the scene and then caching it inside a variable
+            manager = GameObject.Find("GameManager").GetComponent<GameManager>();
         }
 
 
@@ -128,8 +140,44 @@ namespace Final
         }
 
 
+        public void GainSpeed(float amt)
+        {
+            speed += amt;
+        }
+
+
+        public void GainPoint(float amt)
+        {
+            score += amt * manager.timer;
+            totalScore = Math.Round(score, 2);
+        }
+
+
+        public void EndRoundBonus()
+        {
+            if(manager.timer >= 20)
+            {
+                totalScore *= 3;
+                Debug.Log("PLAYER HAS EARN 3X BONUS");
+            }
+
+            else if (10 <= manager.timer && manager.timer > 20)
+            {
+                totalScore *= 2;
+                Debug.Log("PLAYER HAS EARN 2X BONUS");
+            }
+
+            else
+            {
+                totalScore *= 1.5;
+                Debug.Log("PLAYER HAS EARN 1.5X BONUS");
+            }
+        }
+
+
         void Jump(InputAction.CallbackContext context)
         {
+            Debug.Log("Jump");
             if(grounded == true)
             {
                 rb.AddForce(Vector3.up * jumpForce);

@@ -14,7 +14,7 @@ public class GameManager : MonoBehaviour
     private int coinCount;
 
     // Variable for in-game timer
-    private float timer = 30;
+    public float timer = 30;
     private bool isTimerOn = true;
     private bool beginTimer = false;
     private bool collectedAllCoin = false;
@@ -73,6 +73,8 @@ public class GameManager : MonoBehaviour
     // An endscreen status to indicate the player has failed to collect all the coin within 30 seconds
     private void LevelFailed()
     {
+        // Player score's is set to score 0 for failing the level
+
         // Activating the fail result screen
         levelCompletePanel.GetComponent<Image>().color = new Color(1, 0, 0, 0.35f);
         levelCompletePanel.SetActive(true);
@@ -88,6 +90,9 @@ public class GameManager : MonoBehaviour
     // An endscreen status to indicate the player has successfully collected all the coin within 30 seconds. 
     private void LevelCompleted()
     {
+        // Players earns a point bonus based on level completion and time remaining
+        //player.GetComponent<Player>().EndRoundBonus();
+
         // Activating the success result screen
         levelCompletePanel.GetComponent<Image>().color = new Color(0, 0, 1, 0.35f);
         levelCompletePanel.SetActive(true);
@@ -96,7 +101,7 @@ public class GameManager : MonoBehaviour
         timerLabel.text = string.Format("TIMER: {0:F2}", timer);
 
         // Displaying Success result to the player
-        resultLabel.text = string.Format("You Collected All The Coins\nLeft Click To Continue");
+        resultLabel.text = string.Format("You Collected All The Coins\nScores: {0:F2}\nLeft Click To Continue", player.GetComponent<Player>().totalScore);
     }
 
 
