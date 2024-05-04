@@ -41,7 +41,7 @@ public class GameManager : MonoBehaviour
 
 
     // A status to indicate that the level is currently frozen, timer is not running and player need to confirm to start the level
-    private void LevelFrozen()
+    public void DisplayLevelFrozen()
     {
         // Activating the frozen state in the UI
         levelCompletePanel.GetComponent<Image>().color = new Color(0.5f, 0.6f, 0.7f, 0.35f);
@@ -168,22 +168,20 @@ public class GameManager : MonoBehaviour
 
     private void Awake()
     {
-        
+
     }
 
     // Start is called before the first frame update
     void Start()
     {
+        // When the level starts, Search for all the coins inside a scene
         SearchAllCoins();
-        player = GameObject.Find("Player");
 
-        // Adding listener for player specific event
-        // For FreezePlayerEvent
-        Player.GetFreezePlayerEvent().AddListener(LevelFrozen);
+        // Finding the player object inside the scene and storing it inside a variable
+        player = GameObject.Find("Player");
 
         // For BeginCountdownEvent
         Player.GetBeginCountDownEvent().AddListener(LevelPlaying);
-
     }
 
     // Update is called once per frame

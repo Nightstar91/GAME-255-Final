@@ -34,7 +34,7 @@ namespace Final
         public float speed = 8f;
         public int coinAmount;
         private float jumpForce = 250f;
-        private float rotation = 300f;
+        public float rotation = 350f;
 
         // Boolean to handle jumping and first time movement
         public bool grounded = false;
@@ -46,8 +46,7 @@ namespace Final
         // Variable to be use for event
         public static Player instance;
 
-        public UnityEvent freezePlayerEvent;
-        public UnityEvent BeginCountDownEvent;
+        public UnityEvent beginCountDownEvent;
 
         // Initializing player object for movement
         private void Awake()
@@ -101,20 +100,18 @@ namespace Final
         }
 
 
+        // When the game starts
         private void Start()
         {
-            freezePlayerEvent.Invoke();
+            // Freeze the player's movement
             FreezePlayer();
-        }
 
-        public static UnityEvent GetFreezePlayerEvent()
-        {
-            return instance.freezePlayerEvent;
+            manager.DisplayLevelFrozen();
         }
 
         public static UnityEvent GetBeginCountDownEvent()
         {
-            return instance.BeginCountDownEvent;
+            return instance.beginCountDownEvent;
         }
 
 
@@ -153,31 +150,9 @@ namespace Final
         }
 
 
-        public void EndRoundBonus()
-        {
-            if(manager.timer >= 20)
-            {
-                totalScore *= 3;
-                Debug.Log("PLAYER HAS EARN 3X BONUS");
-            }
-
-            else if (10 <= manager.timer && manager.timer > 20)
-            {
-                totalScore *= 2;
-                Debug.Log("PLAYER HAS EARN 2X BONUS");
-            }
-
-            else
-            {
-                totalScore *= 1.5;
-                Debug.Log("PLAYER HAS EARN 1.5X BONUS");
-            }
-        }
-
-
         void Jump(InputAction.CallbackContext context)
         {
-            Debug.Log("Jump");
+            //Debug.Log("Jump");
             if(grounded == true)
             {
                 rb.AddForce(Vector3.up * jumpForce);
@@ -195,7 +170,7 @@ namespace Final
                 UnfreezePlayer();
 
                 // Start the countdown event
-                BeginCountDownEvent.Invoke();
+                beginCountDownEvent.Invoke();
 
                 // Set the level status to be true
                 beginLevel = true;
@@ -207,8 +182,6 @@ namespace Final
         {
             move.Disable();
             look.Disable();
-
-            freezePlayerEvent.Invoke();
         }
 
 
