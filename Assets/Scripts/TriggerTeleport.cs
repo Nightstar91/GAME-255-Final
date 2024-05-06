@@ -3,28 +3,39 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TriggerTeleport : MonoBehaviour
+namespace Final
 {
-    [SerializeField] GameObject spotToTeleport;
-    private GameObject player;
-    private Vector3 positionToTeleport;
-    
-
-    // Start is called before the first frame update
-    void Start()
+    public class TriggerTeleport : MonoBehaviour
     {
-        player = GameObject.Find("Player");
+        // Declaring variable
+        // Exposing a gameobject that will act as a waypoint to teleport the player
+        [SerializeField] GameObject spotToTeleport;
 
-        positionToTeleport = new Vector3(spotToTeleport.transform.position.x, spotToTeleport.transform.position.y, spotToTeleport.transform.position.z);
+        // Other variable to allow the teleport to function
+        private GameObject player;
+        private Vector3 positionToTeleport;
 
-        Debug.Log($"X:{positionToTeleport.x} Y:{positionToTeleport.y} Z:{positionToTeleport.z}");
-    }
 
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.gameObject.name == "Player")
+        // Start is called before the first frame update
+        void Start()
         {
-            player.transform.position = positionToTeleport;
+            // Find the player object inside the scene
+            player = GameObject.Find("Player");
+
+            // Setting the position that the player will teleport to based on the position of the waypoint placed by the level designer
+            positionToTeleport = new Vector3(spotToTeleport.transform.position.x, spotToTeleport.transform.position.y, spotToTeleport.transform.position.z);
+        }
+
+
+        // Collision
+        private void OnTriggerEnter(Collider other)
+        {
+            // When the player collide with the trigger
+            if (other.gameObject.name == "Player")
+            {
+                // Teleport the player to the waypoint position
+                player.transform.position = positionToTeleport;
+            }
         }
     }
 }

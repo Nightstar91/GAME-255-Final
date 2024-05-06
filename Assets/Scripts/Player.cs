@@ -3,13 +3,14 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 
 namespace Final
 {
     public class Player : MonoBehaviour
     {
-        // Start of declaring variable for my player entity
+        // Declaring variable
         // Specific action variable
         private InputAction move;
         private InputAction look;
@@ -29,23 +30,24 @@ namespace Final
         private int rotDir = 0;
 
         // Attributes for player's stats
-        public double totalScore;
+        public float totalScore;
+        public float levelScore = 0f;
         private float score = 0f;
         public float speed = 8f;
         public int coinAmount;
         private float jumpForce = 250f;
-        public float rotation = 350f;
+        public float rotation;
 
-        // Boolean to handle jumping and first time movement
+        // Boolean to handle game logic
         public bool grounded = false;
-        public bool beginLevel = false;
+        public bool beginLevel;
+        public bool levelIsFinished;
 
         // Variable to handle the component of the player's rigid body
         private Rigidbody rb;
 
         // Variable to be use for event
         public static Player instance;
-
         public UnityEvent beginCountDownEvent;
 
         // Initializing player object for movement
@@ -56,9 +58,14 @@ namespace Final
 
             // Default value for beginLevel
             beginLevel = false;
+            levelIsFinished = false;
 
             // For player control
             mapping = new PlayerControlMapping();
+
+            // Loading in the sensivity saved inside the mainmenu and totalscore
+            rotation = PlayerPrefs.GetInt("Sensitivity", 500);
+            totalScore += PlayerPrefs.GetFloat("Total Score", 0);
 
             // initializing the rigidbody and cursor mode
             rb = GetComponent<Rigidbody>();
@@ -88,6 +95,7 @@ namespace Final
             fire.performed += Fire;
         }
 
+
         private void OnDisable()
         {
             move.Disable(); 
@@ -106,9 +114,12 @@ namespace Final
             // Freeze the player's movement
             FreezePlayer();
 
+            // Display to the player that they are frozen
             manager.DisplayLevelFrozen();
         }
 
+
+        // To be use for unityEvent
         public static UnityEvent GetBeginCountDownEvent()
         {
             return instance.beginCountDownEvent;
@@ -119,6 +130,7 @@ namespace Final
         {
             HandleMovement();
         }
+
 
         // Update is called once per frame
         void Update()
@@ -137,19 +149,29 @@ namespace Final
         }
 
 
+        // Gaining speed whenever a coin is collected
         public void GainSpeed(float amt)
         {
             speed += amt;
         }
 
 
+        // Gaining points whenever a coin is collected
         public void GainPoint(float amt)
         {
             score += amt * manager.timer;
-            totalScore = Math.Round(score, 2);
+            levelScore = (float)Math.Round(score, 2);
         }
 
 
+        // Method to be use for whenever the player fail to collect all the coin, punishment is to set point to 0 for that level
+        public void SetPointZero()
+        {
+            levelScore = 0;
+        }
+
+
+        // For Jumping...
         void Jump(InputAction.CallbackContext context)
         {
             //Debug.Log("Jump");
@@ -163,7 +185,7 @@ namespace Final
         // The input that will start the level once the player loads in
         void Fire(InputAction.CallbackContext context)
         {
-            // When the player left clicks, the level begins!
+            // When the player loads in the level, once they left click...
             if (beginLevel == false)
             {
                 // Unfreeze the player to give them back control
@@ -175,9 +197,23 @@ namespace Final
                 // Set the level status to be true
                 beginLevel = true;
             }
+
+            // Once the level is finished...
+            if (beginLevel == true && levelIsFinished == true)
+            {
+                // Add to the total score
+                totalScore += levelScore;
+
+                // Saving the player totalscore
+                PlayerPrefs.SetFloat("Total Score", totalScore);
+
+                // Load to the next level when the player leftclick when prompted
+                SceneManager.LoadScene(manager.TransitionToNextLevel());
+            }
         }
 
 
+        // Strip the player control (typically used when instructing the player)
         public void FreezePlayer()
         {
             move.Disable();
@@ -185,6 +221,7 @@ namespace Final
         }
 
 
+        // Bring control back to the player
         public void UnfreezePlayer()
         {
             move.Enable();
@@ -192,6 +229,7 @@ namespace Final
         }
 
 
+        // Handle logic for when the player is in the air
         bool IsGrounded()
         {
             // Bit shift the index of the layer (8) to get a bit mask
@@ -212,7 +250,9 @@ namespace Final
             }
 
         }
+        
 
+        // Logic for player movement
         void HandleMovement()
         {
             Vector2 axis = move.ReadValue<Vector2>();
@@ -224,6 +264,8 @@ namespace Final
             rb.velocity = new Vector3(input.x, rb.velocity.y, input.z);
         }
 
+
+        // Handling of the camera's horizontal rotation
         void HandleHorizontalRotation()
         {
 
@@ -237,6 +279,8 @@ namespace Final
             }
         }
 
+
+        // Handling of the camera's vertical rotation
         void HandleVerticalRotation()
         {
             mouseDeltaY = look.ReadValue<Vector2>().y;
@@ -260,8 +304,5 @@ namespace Final
 
             }
         }
-
-
-        
     }
 }

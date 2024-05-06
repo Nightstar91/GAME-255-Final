@@ -19,9 +19,11 @@ namespace Final
             gameObject.SetActive(false); // Using SetActive to be use for reset
         }
 
+
         // Start is called before the first frame update
         void Start()
         {
+            // Finding the player object in the scene to reference for collision
             player = GameObject.Find("Player");
         }
     }
